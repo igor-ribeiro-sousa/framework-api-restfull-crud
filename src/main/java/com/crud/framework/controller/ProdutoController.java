@@ -1,10 +1,10 @@
-package com.crud.frame.controller;
+package com.crud.framework.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.crud.frame.entidade.Produto;
-import com.crud.frame.service.ProdutoService;
+import com.crud.framework.entidade.Produto;
+import com.crud.framework.service.ProdutoService;
 
 @RestController
 @RequestMapping("/api/produtos")
