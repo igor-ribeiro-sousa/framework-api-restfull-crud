@@ -1,4 +1,4 @@
-package com.crud.frame.entidade;
+package com.crud.framework.entidade;
 
 import java.io.Serializable;
 
