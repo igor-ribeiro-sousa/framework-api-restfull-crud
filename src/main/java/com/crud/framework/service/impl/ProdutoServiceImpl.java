@@ -1,4 +1,4 @@
-package com.crud.framework.service;
+package com.crud.framework.service.impl;
 
 import org.springframework.stereotype.Service;
 
@@ -6,9 +6,9 @@ import com.crud.framework.entidade.Produto;
 import com.crud.framework.repository.ProdutoRepository;
 
 @Service
-public class ProdutoService extends GenericService<Produto, Long> {
+public class ProdutoServiceImpl extends GenericServiceImpl<Produto, Long> {
 	
-    public ProdutoService(ProdutoRepository repository) {
+    public ProdutoServiceImpl(ProdutoRepository repository) {
         super(repository);
     }
 }

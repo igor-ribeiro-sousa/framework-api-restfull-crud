@@ -1,7 +1,11 @@
 package com.crud.framework.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,23 +15,32 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.crud.framework.response.ResponseAPI;
-import com.crud.framework.service.GenericService;
+import com.crud.framework.service.impl.GenericServiceImpl;
 
-public abstract class GenericController<T, ID> {
+public abstract class GenericController<T, D, ID> {
 	
-	protected final GenericService<T, ID> service;
+	@Autowired
+    protected GenericServiceImpl<T, ID> service;
 
-	public GenericController(GenericService<T, ID> service) {
-	    this.service = service;
-	}
+    @Autowired
+    protected ModelMapper modelMapper;
+
+    private final Class<T> entityClass;
+    private final Class<D> dtoClass;
+
+    protected GenericController(Class<T> entityClass, Class<D> dtoClass) {
+        this.entityClass = entityClass;
+        this.dtoClass = dtoClass;
+    }
 
 	@GetMapping
 	@SuppressWarnings("unchecked")
-    public final ResponseEntity<ResponseAPI<T>> pesquisar() {
-    	ResponseAPI<T> response = new ResponseAPI<>();
+    public final ResponseEntity<ResponseAPI<D>> pesquisar() {
+    	ResponseAPI<D> response = new ResponseAPI<>();
     	try {
     		List<T> data = service.pesquisar();
-    		response.setData((T) data);
+    		List<D> dataResponse = data.stream().map(entity -> modelMapper.map(entity, dtoClass)).collect(Collectors.toList());
+    		response.setData((D) dataResponse);
     		return ResponseEntity.ok(response);
     	} catch(Exception e) {
     		response.getErrors().add(e.getMessage());
@@ -36,12 +49,19 @@ public abstract class GenericController<T, ID> {
     }
 
     @GetMapping("/{id}")
-    public final ResponseEntity<ResponseAPI<T>> pesquisarPorId(@PathVariable("id") ID id) {
-	    ResponseAPI<T> response = new ResponseAPI<>();
+    public final ResponseEntity<ResponseAPI<D>> pesquisarPorId(@PathVariable("id") ID id) {
+	    ResponseAPI<D> response = new ResponseAPI<>();
 	    try {
-	        T data = service.pesquisarPorId(id);
-	        response.setData((T) data);
-	        return ResponseEntity.ok(response);
+	    	 T entity = service.pesquisarPorId(id);
+	         
+	         if (entity == null) {
+	             response.getErrors().add("Registro não encontrado.");
+	             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	         }
+
+	         D dataResponse = modelMapper.map(entity, dtoClass);
+	         response.setData(dataResponse);
+	         return ResponseEntity.ok(response);
 	    } catch (Exception e) {
 	        response.getErrors().add(e.getMessage());
 	        return ResponseEntity.badRequest().body(response);
@@ -49,12 +69,14 @@ public abstract class GenericController<T, ID> {
 	}
 
     @PostMapping
-    public final ResponseEntity<ResponseAPI<T>> inserir(@RequestBody T entity) {
-        ResponseAPI<T> response = new ResponseAPI<>();
+    public final ResponseEntity<ResponseAPI<D>> inserir(@RequestBody T dto) {
+        ResponseAPI<D> response = new ResponseAPI<>();
         try {
-            T data = service.inserir(entity);
-            response.setData((T) data);
-            return ResponseEntity.ok(response);
+        	 T entity = modelMapper.map(dto, entityClass);
+             T savedEntity = service.inserir(entity);
+             D dataResponse = modelMapper.map(savedEntity, dtoClass);
+             response.setData(dataResponse);
+             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.getErrors().add(e.getMessage());
             return ResponseEntity.badRequest().body(response);
@@ -62,12 +84,14 @@ public abstract class GenericController<T, ID> {
     }
     
     @PutMapping("{id}")
-	public final ResponseEntity<ResponseAPI<T>> alterar(@PathVariable ID id, @RequestBody T entity) {
-	    ResponseAPI<T> response = new ResponseAPI<>();
+	public final ResponseEntity<ResponseAPI<D>> alterar(@PathVariable ID id, @RequestBody T dto) {
+	    ResponseAPI<D> response = new ResponseAPI<>();
 	    try {
-	        T data = service.alterar(id, entity);
-	        response.setData((T) data);
-	        return ResponseEntity.ok(response);
+	    	T entity = modelMapper.map(dto, entityClass);
+	        T savedEntity = service.alterar(id, entity);
+            D dataResponse = modelMapper.map(savedEntity, dtoClass);
+            response.setData(dataResponse);
+            return ResponseEntity.ok(response);
 	    } catch (Exception e) {
 	        response.getErrors().add(e.getMessage());
 	        return ResponseEntity.badRequest().body(response);

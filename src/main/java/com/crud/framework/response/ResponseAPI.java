@@ -4,18 +4,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResponseAPI<T> implements Serializable{
+public class ResponseAPI<D> implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
-	private T data;
+	private D data;
     private List<String> errors;
     
-    public T getData() {
+    public D getData() {
         return data;
     }
     
-    public void setData(T data) {
+    public void setData(D data) {
         this.data = data;
     }
     
