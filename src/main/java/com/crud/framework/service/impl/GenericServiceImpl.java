@@ -5,75 +5,113 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 
+import com.crud.framework.config.GenericMapper;
 import com.crud.framework.repository.GenericRepository;
 import com.crud.framework.service.GenericService;
 
 import jakarta.persistence.Id;
 import jakarta.transaction.Transactional;
 
-public abstract class GenericServiceImpl<T, ID> implements GenericService<T, ID> {
+public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, D, ID> {
 	
-    protected final GenericRepository<T, ID> repository;
+	private final Class<T> entityClass;
+	private final Class<D> dtoClass;
+	
+	protected final GenericRepository<T, ID> repository;
+    protected final GenericMapper genericMapper;
     
-    public GenericServiceImpl(GenericRepository<T, ID> repository) {
+    public GenericServiceImpl(
+    		GenericRepository<T, ID> repository,
+    		GenericMapper genericMapper, 
+    		Class<T> entityClass, 
+    		Class<D> dtoClass) {
         this.repository = repository;
+        this.genericMapper = genericMapper;
+        this.entityClass = entityClass;
+        this.dtoClass = dtoClass;
     }
 
     @Transactional
     @Override
-    public List<T> pesquisar() {
+    public List<D> pesquisar() {
     	try {
-    		List<T> result = repository.findAll();
-    		completarPosPesquisar(result);
-    		return result;
+    		List<T> resultados = repository.findAll();
+    		
+    		List<D> resultadosDTO = genericMapper.convertListEntityToListDTO(resultados, dtoClass);
+    		
+    		completarPosPesquisar(resultadosDTO);
+    		
+    		return resultadosDTO;
+    		
     	} catch(Exception e) {
 			throw new RuntimeException("Erro ao pesquisar: " + e.getMessage(), e);
+			
     	}
     }
     
     @Transactional
     @Override
-	public T pesquisarPorId(ID id) {
-		T objResponse = repository.findById(id).orElseThrow(() -> new RuntimeException("Entidade não encontrada"));
-		completarPosPesquisarPorId(objResponse);
-		return objResponse;
+	public D pesquisarPorId(ID id) {
+		T resultado = repository.findById(id).orElseThrow(() -> new RuntimeException("Entidade não encontrada"));
+		
+        D resultadoDTO = genericMapper.convertToDTO(resultado, dtoClass);
+        
+		completarPosPesquisarPorId(resultadoDTO);
+		
+		return resultadoDTO;
 	}
 
     @Transactional
     @Override
-	public T inserir(T entity) {
+	public D inserir(D entityDTO) {
+		if (!validarInserir(entityDTO)) {
+			throw new RuntimeException("Falha na validação da inserção.");
+			
+		}
 		try {
-			if (!validarInserir(entity)) {
-				throw new RuntimeException("Falha na validação da inserção.");
-			}
+			T entity = genericMapper.convertToEntity(entityDTO, entityClass);
+			
 			completarInserir(entity);
-			T objResponse = repository.save(entity);
-			completarPosInserir(objResponse);
-			return objResponse;
+			
+			T resposta = repository.save(entity);
+			
+			D respostaDTO = genericMapper.convertToDTO(resposta, dtoClass);
+			
+			completarPosInserir(respostaDTO);
+			
+			return respostaDTO;
+			
 		} catch (Exception e) {
 			throw new RuntimeException("Erro ao inserir: " + e.getMessage(), e);
+			
 		}
 	}
     
     @Transactional
     @Override
-	public T alterar(ID id, T entity) {
+	public D alterar(ID id, D entityDTO) {
+		if (!validarAlterar(entityDTO)) {
+			throw new RuntimeException("Falha na validação da alteração.");
+			
+		}
 		try {
-			if (!validarAlterar(entity)) {
-				throw new RuntimeException("Falha na validação da alteração.");
-			}
+			T entity = genericMapper.convertToEntity(entityDTO, entityClass);
+			
 			completarAlterar(entity);
 			
-			T entidadeExistente = repository.findById(id).orElseThrow(() -> new RuntimeException("Entidade não encontrada"));
-
-			// Copia apenas os atributos modificáveis, sem alterar o identificador
-			BeanUtils.copyProperties(entity, entidadeExistente, obterNomeDoIdentificador(entity.getClass()));
-
-			T objAlterado = repository.save(entidadeExistente);
-			completarPosAlterar(objAlterado);
-			return objAlterado;
+			T entityBD = repository.findById(id).orElseThrow(() -> new RuntimeException("Entidade não encontrada"));
+			
+			BeanUtils.copyProperties(entity, entityBD, obterNomeDoIdentificador(entity.getClass()));
+			
+			D resposta = genericMapper.convertToDTO(repository.save(entityBD), dtoClass);
+			
+			completarPosAlterar(resposta);
+			
+			return resposta;
+			
 		} catch (Exception e) {
 			throw new RuntimeException("Erro ao alterar a entidade: " + e.getMessage(), e);
+			
 		}
 	}
 
@@ -81,6 +119,7 @@ public abstract class GenericServiceImpl<T, ID> implements GenericService<T, ID>
 		for (Field field : entityClass.getDeclaredFields()) {
 			if (field.isAnnotationPresent(Id.class)) {
 				return field.getName();
+				
 			}
 		}
 		throw new RuntimeException("Nenhum identificador @Id encontrado na entidade " + entityClass.getSimpleName());
@@ -91,26 +130,29 @@ public abstract class GenericServiceImpl<T, ID> implements GenericService<T, ID>
 	public void deletar(ID id) {
 		try {
 			T entidade = repository.findById(id).orElseThrow(() -> new RuntimeException("Entidade não encontrada para exclusão"));
+			
 			repository.delete(entidade);
+			
 		} catch (Exception e) {
 			throw new RuntimeException("Erro ao excluir a entidade: " + e.getMessage(), e);
+			
 		}
 	}
     
-    protected boolean validarInserir(T entity) { return true; }
+    protected boolean validarInserir(D entityDTO) { return true; }
 
-	protected boolean validarAlterar(T entity) { return true; }
+	protected boolean validarAlterar(D entityDTO) { return true; }
 
 	protected void completarInserir(T entity) { }
 
 	protected void completarAlterar(T entity) { }
 
-	protected void completarPosInserir(T entity) { }
+	protected void completarPosInserir(D entityDTO) { }
 
-	protected void completarPosAlterar(T entity) { }
+	protected void completarPosAlterar(D entityDTO) { }
 
-	protected void completarPosPesquisar(List<T> entity) { }
+	protected void completarPosPesquisar(List<D> entityDTO) { }
 
-	protected void completarPosPesquisarPorId(T entity) { }
+	protected void completarPosPesquisarPorId(D entityDTO) { }
 
 }
