@@ -3,14 +3,14 @@ package com.crud.framework.service.impl;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import javax.persistence.Id;
+import javax.transaction.Transactional;
+
 import org.springframework.beans.BeanUtils;
 
 import com.crud.framework.config.GenericMapper;
 import com.crud.framework.repository.GenericRepository;
 import com.crud.framework.service.GenericService;
-
-import jakarta.persistence.Id;
-import jakarta.transaction.Transactional;
 
 public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, D, ID> {
 	
