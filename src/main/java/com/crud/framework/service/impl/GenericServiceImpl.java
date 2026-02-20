@@ -3,10 +3,9 @@ package com.crud.framework.service.impl;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import javax.persistence.Id;
-import javax.transaction.Transactional;
-
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.annotation.Id;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.crud.framework.config.GenericMapper;
 import com.crud.framework.repository.GenericRepository;
