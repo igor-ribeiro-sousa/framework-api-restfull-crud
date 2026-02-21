@@ -2,15 +2,15 @@ package com.crud.framework.service;
 
 import java.util.List;
 
-public interface GenericService<T, D, ID> {
+public interface GenericService<T, ID> {
     
-	List<D> pesquisar();
+	List<T> pesquisar();
 	
-	D pesquisarPorId(ID id);
+	T pesquisarPorId(ID id);
 	
-	D inserir(D entityDTO);
+	T inserir(T entityDTO);
     
-	D alterar(ID id, D entityDTO);
+	T alterar(ID id, T entityDTO);
 
 	void deletar(ID id);
 
