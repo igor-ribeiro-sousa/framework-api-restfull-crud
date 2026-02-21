@@ -4,12 +4,13 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.annotation.Id;
-import org.springframework.transaction.annotation.Transactional;
+import javax.persistence.Id;
+
 
 import com.crud.framework.config.GenericMapper;
 import com.crud.framework.repository.GenericRepository;
 import com.crud.framework.service.GenericService;
+
 
 public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, D, ID> {
 	
@@ -30,7 +31,6 @@ public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, 
         this.dtoClass = dtoClass;
     }
 
-    @Transactional
     @Override
     public List<D> pesquisar() {
     	try {
@@ -48,7 +48,6 @@ public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, 
     	}
     }
     
-    @Transactional
     @Override
 	public D pesquisarPorId(ID id) {
 		T resultado = repository.findById(id).orElseThrow(() -> new RuntimeException("Entidade não encontrada"));
@@ -60,7 +59,6 @@ public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, 
 		return resultadoDTO;
 	}
 
-    @Transactional
     @Override
 	public D inserir(D entityDTO) {
 		if (!validarInserir(entityDTO)) {
@@ -86,7 +84,6 @@ public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, 
 		}
 	}
     
-    @Transactional
     @Override
 	public D alterar(ID id, D entityDTO) {
 		if (!validarAlterar(entityDTO)) {
@@ -124,7 +121,6 @@ public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, 
 		throw new RuntimeException("Nenhum identificador @Id encontrado na entidade " + entityClass.getSimpleName());
 	}
 
-    @Transactional
     @Override
 	public void deletar(ID id) {
 		try {
@@ -134,7 +130,6 @@ public abstract class GenericServiceImpl<T, D, ID> implements GenericService<T, 
 			
 		} catch (Exception e) {
 			throw new RuntimeException("Erro ao excluir a entidade: " + e.getMessage(), e);
-			
 		}
 	}
     
