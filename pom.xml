@@ -78,6 +78,7 @@
     </dependencies>
 
     <build>
+    <finalName>framework</finalName> <!-- Nao coloca a versao no jar -->
         <plugins>
 
             <plugin>
