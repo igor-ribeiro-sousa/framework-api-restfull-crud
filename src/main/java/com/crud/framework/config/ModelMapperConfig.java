@@ -14,7 +14,7 @@ public class ModelMapperConfig {
         // Configuração extra para listas aninhadas e evitar valores nulos
         modelMapper.getConfiguration()
                 .setSkipNullEnabled(true)
-                .setFieldMatchingEnabled(true)  // Permite melhor correspondência de campos
+                .setFieldMatchingEnabled(true)  												 // Permite melhor correspondência de campos
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);  // Acessa atributos privados
         
         return modelMapper;

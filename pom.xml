@@ -28,17 +28,16 @@
 
     <dependencies>
 
+		<!-- JPA base -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
         <!-- @Component, @Service, @Autowired -->
 		<dependency>
 		    <groupId>org.springframework</groupId>
 		    <artifactId>spring-context</artifactId>
-		    <scope>provided</scope>
-		</dependency>
-		
-		<!-- JPA base -->
-		<dependency>
-		    <groupId>org.springframework.data</groupId>
-		    <artifactId>spring-data-jpa</artifactId>
 		    <scope>provided</scope>
 		</dependency>
 		
@@ -67,6 +66,13 @@
 		    <groupId>org.modelmapper</groupId>
 		    <artifactId>modelmapper</artifactId>
    		    <version>3.2.0</version>
+		</dependency>
+		
+		<!-- Javax -->
+		<dependency>
+		    <groupId>jakarta.servlet</groupId>
+		    <artifactId>jakarta.servlet-api</artifactId>
+		    <scope>provided</scope>
 		</dependency>
 
     </dependencies>
