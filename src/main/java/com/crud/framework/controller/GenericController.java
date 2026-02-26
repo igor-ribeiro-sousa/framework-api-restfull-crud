@@ -24,6 +24,7 @@ public abstract class GenericController<T, D, ID> {
 	public GenericController(GenericService<T, D, ID> service) {
         this.service = service;
     }
+    
 
 	@GetMapping
 	@SuppressWarnings("unchecked")
