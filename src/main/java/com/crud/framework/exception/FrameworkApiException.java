@@ -11,6 +11,7 @@ public class FrameworkApiException implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private Long timestamp;
+	private String dateTime;
 	private Integer status;
 	private String error;
 	private String message;
@@ -18,8 +19,9 @@ public class FrameworkApiException implements Serializable {
 
 	public FrameworkApiException() { }
 
-	public FrameworkApiException(Long timestamp, Integer status, String error, String message, String path) {
+	public FrameworkApiException(Long timestamp, String dateTime, Integer status, String error, String message, String path) {
 		this.timestamp = timestamp;
+		this.dateTime = dateTime;
 		this.status = status;
 		this.error = error;
 		this.message = message;
@@ -32,6 +34,14 @@ public class FrameworkApiException implements Serializable {
 
 	public void setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
+	}
+	
+	public String getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(String dateTime) {
+		this.dateTime = dateTime;
 	}
 
 	public Integer getStatus() {

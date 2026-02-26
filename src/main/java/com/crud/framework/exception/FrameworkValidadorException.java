@@ -17,8 +17,8 @@ public class FrameworkValidadorException extends FrameworkApiException {
 		super();
 	}
 
-	public FrameworkValidadorException(Long timestamp, Integer status, String error, String message, String path) {
-		super(timestamp, status, error, message, path);
+	public FrameworkValidadorException(Long timestamp, String dateTime, Integer status, String error, String message, String path) {
+		super(timestamp, dateTime, status, error, message, path);
 	}
 
 	public List<ErroCampo> getErrors() {

@@ -3,6 +3,7 @@ package com.crud.framework.exception;
 import java.io.Serializable;
 
 /**
+ * 
  * @author igor-ribeiro-sousa
  *
  */
